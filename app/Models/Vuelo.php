@@ -11,8 +11,8 @@ class Vuelo extends Model
     protected $fillable = [
         'origen',
         'destino',
-        'fecha',
-        'hora',
+        'fecha_salida',
+        'fecha_llegada',
         'precio',
     ];
 

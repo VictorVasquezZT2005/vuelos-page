@@ -2,7 +2,7 @@
 
 @section('content')
 <!-- HERO -->
-<header class="hero" style="background: url('https://images.unsplash.com/photo-1504198453319-5ce911bafcde?auto=format&fit=crop&w=1950&q=80') no-repeat center center; background-size: cover; height: 60vh; display: flex; align-items: center; justify-content: center; text-align: center;"> <div> <h1>Vuela Con Confianza</h1> <p>Descubre nuevos destinos y vive experiencias inolvidables con Aerolínea</p> <a href="{{ route('login') }}" class="btn btn-lg btn-primary mt-3"><i class="fas fa-ticket-alt"></i> Iniciar Sesión</a> </div> </header>
+<header class="hero" style="background: url('https://images.unsplash.com/photo-1504198453319-5ce911bafcde?auto=format&fit=crop&w=1950&q=80') no-repeat center center; background-size: cover; height: 60vh; display: flex; align-items: center; justify-content: center; text-align: center;"> <div> <h1>Vuela Con Confianza</h1> <p>Descubre nuevos destinos y vive experiencias inolvidables con Aerolínea</p> </div> </header>
 
 <!-- DESTINOS -->
 <section id="destinos" class="container my-5">

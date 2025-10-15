@@ -16,7 +16,6 @@
                         <th>#</th>
                         <th>Vuelo</th>
                         <th>Fecha</th>
-                        <th>Hora</th>
                         <th>Asientos</th>
                         <th>Precio Total</th>
                     </tr>
@@ -27,7 +26,6 @@
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $reserva->vuelo->origen }} → {{ $reserva->vuelo->destino }}</td>
                             <td>{{ \Carbon\Carbon::parse($reserva->vuelo->fecha)->format('d/m/Y') }}</td>
-                            <td>{{ $reserva->vuelo->hora }}</td>
                             <td>{{ $reserva->asientos }}</td>
                             <td>${{ number_format($reserva->asientos * $reserva->vuelo->precio, 2) }}</td>
                         </tr>

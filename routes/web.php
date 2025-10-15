@@ -6,22 +6,27 @@ use App\Http\Controllers\ContactoController;
 use App\Http\Controllers\VueloController;
 use App\Http\Controllers\ReservacionController;
 
-Route::get('/', function(){ return view('welcome'); })->name('welcome');
+Route::get('/', function() {
+    return view('welcome');
+})->name('welcome');
 
+// Rutas de autenticación
 Route::get('/register', [ClienteAuthController::class,'showRegisterForm'])->name('register');
 Route::post('/register', [ClienteAuthController::class,'register'])->name('register.post');
 Route::get('/login', [ClienteAuthController::class,'showLoginForm'])->name('login');
 Route::post('/login', [ClienteAuthController::class,'login'])->name('login.post');
 Route::post('/logout', [ClienteAuthController::class,'logout'])->name('logout');
+
+// Contacto
 Route::post('/contacto/send', [ContactoController::class, 'send'])->name('contacto.send');
 
+// Rutas protegidas por auth
 Route::middleware('auth')->group(function () {
+    // Vuelos
     Route::get('/vuelos', [VueloController::class, 'index'])->name('vuelos.index');
 
+    // Reservaciones
+    Route::get('/reservaciones', [ReservacionController::class, 'index'])->name('reservaciones.index');
     Route::get('/reservaciones/create/{vuelo_id}', [ReservacionController::class, 'create'])->name('reservaciones.create');
     Route::post('/reservaciones', [ReservacionController::class, 'store'])->name('reservaciones.store');
-});
-
-Route::middleware('auth')->group(function () {
-    Route::get('/reservaciones', [ReservacionController::class, 'index'])->name('reservaciones.index');
 });

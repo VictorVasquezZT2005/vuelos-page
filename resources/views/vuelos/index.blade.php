@@ -12,8 +12,8 @@
                     <div class="card-body">
                         <h5 class="card-title"><i class="fas fa-plane"></i> {{ $vuelo->origen }} → {{ $vuelo->destino }}</h5>
                         <p class="card-text">
-                            <strong>Fecha:</strong> {{ \Carbon\Carbon::parse($vuelo->fecha)->format('d/m/Y') }}<br>
-                            <strong>Hora:</strong> {{ $vuelo->hora }}<br>
+                            <strong>Fecha de salida:</strong> {{ \Carbon\Carbon::parse($vuelo->fecha_salida)->format('d/m/Y H:i') }}<br>
+                            <strong>Fecha de llegada:</strong> {{ \Carbon\Carbon::parse($vuelo->fecha_llegada)->format('d/m/Y H:i') }}<br>
                             <strong>Precio:</strong> ${{ number_format($vuelo->precio, 2) }}
                         </p>
                         <a href="{{ route('reservaciones.create', ['vuelo_id' => $vuelo->id]) }}" class="btn btn-primary w-100">
