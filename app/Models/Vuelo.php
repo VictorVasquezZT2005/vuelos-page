@@ -8,13 +8,17 @@ class Vuelo extends Model
 {
     protected $table = 'vuelos';
 
-    protected $fillable = [
-        'origen',
-        'destino',
-        'fecha_salida',
-        'fecha_llegada',
-        'precio',
-    ];
+protected $fillable = [
+    'codigo',
+    'origen',
+    'destino',
+    'fecha_salida',
+    'fecha_llegada',
+    'precio',
+    'asientos_disponibles',
+    'asientos_ocupados',
+];
+
 
     // Relación con reservaciones
     public function reservaciones()

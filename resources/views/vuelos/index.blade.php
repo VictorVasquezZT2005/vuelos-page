@@ -1,6 +1,5 @@
 @extends('layouts.app')
 
-{{-- Aquí va el CSS mejorado que te mostré arriba --}}
 @section('styles')
 <style>
 /* ... Pega aquí todo el código CSS de arriba ... */
@@ -18,22 +17,25 @@
                 <div class="card shadow-sm h-100">
                     {{-- Contenedor de la animación mejorada --}}
                     <div class="plane-animation">
-                        {{-- El avión --}}
                         <i class="fas fa-plane"></i>
-                        
-                        {{-- Las nubes que se moverán --}}
                         <div class="cloud cloud-1 drift-slow"></div>
                         <div class="cloud cloud-2 drift-fast"></div>
                     </div>
+
                     <div class="card-body d-flex flex-column">
                         <h5 class="card-title text-center mb-3">
                             {{ $vuelo->origen }} → {{ $vuelo->destino }}
                         </h5>
+
                         <p class="card-text">
+                            <strong>Código:</strong> {{ $vuelo->codigo }}<br>
                             <strong>Salida:</strong> {{ \Carbon\Carbon::parse($vuelo->fecha_salida)->format('d/m/Y H:i') }}<br>
                             <strong>Llegada:</strong> {{ \Carbon\Carbon::parse($vuelo->fecha_llegada)->format('d/m/Y H:i') }}<br>
-                            <strong>Precio:</strong> ${{ number_format($vuelo->precio, 2) }}
+                            <strong>Precio:</strong> ${{ number_format($vuelo->precio, 2) }}<br>
+                            <strong>Asientos disponibles:</strong> {{ $vuelo->asientos_disponibles }}<br>
+                            <strong>Asientos ocupados:</strong> {{ $vuelo->asientos_ocupados }}
                         </p>
+
                         <a href="{{ route('reservaciones.create', ['vuelo_id' => $vuelo->id]) }}" class="btn btn-primary w-100 mt-auto">
                             Reservar
                         </a>
