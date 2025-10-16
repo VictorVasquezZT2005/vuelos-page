@@ -3,96 +3,202 @@
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Boleto de Vuelo - SkyWings</title>
+    <title>Boleto de Vuelo - {{ $reservacion->vuelo->codigo }}</title>
     <style>
-        body { font-family: 'Helvetica', sans-serif; font-size: 12px; color: #333; }
-        .container { width: 100%; margin: 0 auto; border: 2px solid #0d47a1; border-radius: 10px; }
-        .header { background-color: #1a73e8; color: white; padding: 15px; text-align: center; border-bottom: 2px solid #0d47a1; border-radius: 8px 8px 0 0; }
-        .header h1 { margin: 0; font-size: 24px; }
-        .content { padding: 20px; }
-        .flight-info, .passenger-info { margin-bottom: 20px; }
-        .flight-info table, .passenger-info table { width: 100%; border-collapse: collapse; }
-        .flight-info th, .flight-info td, .passenger-info th, .passenger-info td { padding: 8px; text-align: left; border-bottom: 1px solid #ddd; }
-        .flight-info th { background-color: #f2f2f2; width: 150px; }
-        .total { text-align: right; font-size: 16px; font-weight: bold; margin-top: 20px; }
-        .barcode { text-align: center; margin-top: 25px; }
-        .footer { text-align: center; padding: 10px; font-size: 10px; color: #777; border-top: 1px solid #eee; }
-        .seat-badge { display: inline-block; background-color: #0d47a1; color: white; padding: 5px 10px; border-radius: 5px; margin-right: 5px; font-weight: bold; }
+        @page {
+            margin: 0; /* Elimina el margen de la página PDF */
+        }
+        body {
+            font-family: 'Helvetica', sans-serif;
+            margin: 0; /* Asegura que no haya margen en el body */
+            padding: 0;
+            color: #333;
+        }
+        .ticket-container {
+            width: 800px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .ticket { display: table; width: 100%; }
+        .main-section {
+            display: table-cell;
+            width: 70%;
+            padding: 20px;
+            background: white;
+        }
+        .stub-section {
+            display: table-cell;
+            width: 30%;
+            padding: 20px;
+            background: #d92c3f; /* Color rojo del ejemplo */
+            color: white;
+            border-left: 2px dashed #ccc;
+            vertical-align: top;
+        }
+        h1, h2, h3 { margin: 0; padding: 0; }
+        .label {
+            font-size: 11px;
+            color: #888;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
+        .value { font-size: 16px; font-weight: bold; }
+        .main-section .value { color: #000; }
+        .stub-section .label { color: #ffcdd2; }
+        .stub-section .value { font-size: 14px; }
+        .flight-path {
+            display: table;
+            width: 100%;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .origin, .destination, .plane-icon { display: table-cell; vertical-align: middle; }
+        .origin, .destination { font-size: 40px; font-weight: bold; }
+        .plane-icon { font-size: 24px; position: relative; }
+        .plane-icon span { display: block; }
+        .dashed-line {
+            border-bottom: 2px dashed #999;
+            width: 100%;
+            position: relative;
+            top: -16px;
+        }
+        .details-grid {
+            display: table;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .details-grid > div {
+            display: table-cell;
+        }
+        .qr-code { text-align: center; margin-top: 10px; }
+        .footer-note {
+            font-size: 10px;
+            color: #666;
+            margin-top: 20px;
+            text-align: left;
+        }
+        .stub-header {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>SkyWings Airlines</h1>
-            <p style="margin: 0; font-size: 16px;">Pase de Abordar</p>
-        </div>
-        <div class="content">
-            <div class="passenger-info">
-                <h3>Información del Pasajero</h3>
-                <table>
-                    <tr>
-                        <th>Nombre del Pasajero:</th>
-                        <td>{{ $reservacion->cliente->nombre }}</td>
-                    </tr>
-                    <tr>
-                        <th>ID de Reservación:</th>
-                        <td>#{{ $reservacion->id }}</td>
-                    </tr>
-                    <tr>
-                        <th>Fecha de Reserva:</th>
-                        <td>{{ $reservacion->fecha_reserva->format('d/m/Y H:i') }}</td>
-                    </tr>
-                </table>
+    @php
+        $fechaSalida = \Carbon\Carbon::parse($reservacion->vuelo->fecha_salida);
+        $horaEmbarque = $fechaSalida->copy()->subMinutes(45)->format('H:i');
+        $qrData = "Reserva: {$reservacion->id}, Vuelo: {$reservacion->vuelo->codigo}, Pasajero: {$reservacion->cliente->nombre}";
+    @endphp
+
+    <div class="ticket-container">
+        <div class="ticket">
+            <div class="main-section">
+                <div style="display: table; width: 100%;">
+                    <div style="display: table-cell; width: 50%;">
+                        <div class="label">Nombre del Pasajero</div>
+                        <div class="value">{{ $reservacion->cliente->nombre }}</div>
+                    </div>
+                    <div style="display: table-cell; text-align: right;">
+                        <h2 style="color: #d92c3f; font-weight: bold;">SkyWings</h2>
+                    </div>
+                </div>
+
+                <div class="details-grid" style="margin-top: 20px;">
+                    <div>
+                        <div class="label">Vuelo</div>
+                        <div class="value">{{ $reservacion->vuelo->codigo }}</div>
+                    </div>
+                    <div>
+                        <div class="label">Fecha</div>
+                        <div class="value">{{ $fechaSalida->format('d M Y') }}</div>
+                    </div>
+                    <div>
+                        <div class="label">Asiento(s)</div>
+                        <div class="value">{{ implode(', ', $reservacion->numeros_asiento) }}</div>
+                    </div>
+                </div>
+
+                <div class="flight-path">
+                    <div class="origin">{{ strtoupper(substr($reservacion->vuelo->origen, 0, 3)) }}</div>
+                    <div class="plane-icon">
+                        <span>✈️</span>
+                        <div class="dashed-line"></div>
+                    </div>
+                    <div class="destination">{{ strtoupper(substr($reservacion->vuelo->destino, 0, 3)) }}</div>
+                </div>
+
+                <div class="details-grid">
+                    <div>
+                        <div class="label">Hora de Embarque</div>
+                        <div class="value">{{ $horaEmbarque }}</div>
+                    </div>
+                    <div>
+                        <div class="label">Puerta</div>
+                        <div class="value">D-10</div> {{-- Dato de ejemplo --}}
+                    </div>
+                    <div>
+                        <div class="label">Terminal</div>
+                        <div class="value">2A</div> {{-- Dato de ejemplo --}}
+                    </div>
+                </div>
+
+                <div style="display: table; width: 100%; margin-top: 10px;">
+                    <div style="display: table-cell; width: 70%;">
+                         <div class="footer-note">
+                            Por favor, llegue a la puerta de embarque 30 minutos antes de la salida.
+                        </div>
+                    </div>
+                    <div style="display: table-cell; width: 30%;" class="qr-code">
+                        <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG($qrData, 'QRCODE') }}" alt="qr code" />
+                    </div>
+                </div>
+
             </div>
 
-            <div class="flight-info">
-                <h3>Detalles del Vuelo</h3>
-                <table>
-                    <tr>
-                        <th>Vuelo:</th>
-                        <td>{{ $reservacion->vuelo->codigo }}</td>
-                    </tr>
-                    <tr>
-                        <th>Origen:</th>
-                        <td>{{ $reservacion->vuelo->origen }}</td>
-                    </tr>
-                    <tr>
-                        <th>Destino:</th>
-                        <td>{{ $reservacion->vuelo->destino }}</td>
-                    </tr>
-                    <tr>
-                        <th>Despegue:</th>
-                        <td><strong>{{ \Carbon\Carbon::parse($reservacion->vuelo->fecha_salida)->format('d/m/Y') }} a las {{ \Carbon\Carbon::parse($reservacion->vuelo->fecha_salida)->format('H:i') }} hrs</strong></td>
-                    </tr>
-                    <tr>
-                        <th>Llegada Estimada:</th>
-                        <td>{{ \Carbon\Carbon::parse($reservacion->vuelo->fecha_llegada)->format('d/m/Y') }} a las {{ \Carbon\Carbon::parse($reservacion->vuelo->fecha_llegada)->format('H:i') }} hrs</td>
-                    </tr>
-                     <tr>
-                        <th>Asientos Asignados:</th>
-                        <td>
-                            @foreach($reservacion->numeros_asiento as $asiento)
-                                <span class="seat-badge">{{ $asiento }}</span>
-                            @endforeach
-                        </td>
-                    </tr>
-                </table>
-            </div>
+            <div class="stub-section">
+                <div class="stub-header">
+                    SKY FLYER <br>
+                    {{ $reservacion->vuelo->origen }} A {{ $reservacion->vuelo->destino }}
+                </div>
 
-            <div class="total">
-                @php
-                    $precioTotal = $reservacion->asientos * $reservacion->vuelo->precio;
-                @endphp
-                Total Pagado: ${{ number_format($precioTotal, 2) }}
-            </div>
+                <div style="margin-bottom: 15px;">
+                    <div class="label">Nombre del Pasajero</div>
+                    <div class="value">{{ $reservacion->cliente->nombre }}</div>
+                </div>
+                
+                <div style="display: table; width: 100%; margin-bottom: 15px;">
+                    <div style="display: table-cell;">
+                        <div class="label">Vuelo</div>
+                        <div class="value">{{ $reservacion->vuelo->codigo }}</div>
+                    </div>
+                    <div style="display: table-cell;">
+                        <div class="label">Asiento</div>
+                        <div class="value">{{ $reservacion->numeros_asiento[0] }}</div>
+                    </div>
+                </div>
 
-            <div class="barcode">
-                <img src="data:image/png;base64,{{ DNS1D::getBarcodePNG('SW'.$reservacion->id.'-'.$reservacion->vuelo->codigo, 'C128', 2, 60) }}" alt="barcode" />
-                <p>SW{{ $reservacion->id }}-{{ $reservacion->vuelo->codigo }}</p>
+                <div style="display: table; width: 100%; margin-bottom: 15px;">
+                     <div style="display: table-cell;">
+                        <div class="label">Fecha</div>
+                        <div class="value">{{ $fechaSalida->format('d M Y') }}</div>
+                    </div>
+                    <div style="display: table-cell;">
+                        <div class="label">Terminal</div>
+                        <div class="value">2A</div>
+                    </div>
+                </div>
+                
+                 <div style="display: table; width: 100%; margin-bottom: 15px;">
+                    <div style="display: table-cell;">
+                        <div class="label">Puerta</div>
+                        <div class="value">D-10</div>
+                    </div>
+                </div>
+
+                <div class="qr-code">
+                    <img src="data:image/png;base64,{{ DNS2D::getBarcodePNG($qrData, 'QRCODE') }}" alt="qr code" />
+                </div>
             </div>
-        </div>
-        <div class="footer">
-            <p>Gracias por volar con SkyWings. Por favor, preséntese en el aeropuerto al menos 2 horas antes de la salida de su vuelo.</p>
         </div>
     </div>
 </body>

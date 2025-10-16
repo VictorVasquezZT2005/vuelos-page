@@ -7,7 +7,7 @@ use App\Models\Vuelo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Barryvdh\DomPDF\Facade\Pdf; // <-- ¡IMPORTANTE! Añade esta línea
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class ReservacionController extends Controller
 {
@@ -17,7 +17,7 @@ class ReservacionController extends Controller
     public function index()
     {
         $reservaciones = Reservacion::where('cliente_id', Auth::id())
-            ->with('vuelo', 'cliente') // Carga también el cliente para el boleto
+            ->with('vuelo', 'cliente')
             ->latest()
             ->get();
 
@@ -26,19 +26,15 @@ class ReservacionController extends Controller
 
     /**
      * Muestra los detalles de una reservación específica (para el modal).
-     * Retorna los datos en formato JSON para ser usados por JavaScript.
      */
     public function show(Reservacion $reservacion)
     {
-        // Política de seguridad: Asegurarse de que el usuario solo pueda ver sus propias reservaciones
+        // Política de seguridad
         if ($reservacion->cliente_id !== Auth::id()) {
             return response()->json(['error' => 'No autorizado'], 403);
         }
 
-        // Cargar la relación con el vuelo para tener acceso a sus datos
         $reservacion->load('vuelo');
-
-        // Retornar los datos como JSON
         return response()->json($reservacion);
     }
 
@@ -52,16 +48,13 @@ class ReservacionController extends Controller
             abort(403, 'Acción no autorizada.');
         }
 
-        // Cargar las relaciones necesarias
         $reservacion->load('vuelo', 'cliente');
-
-        // Cargar la vista del boleto y pasarle los datos
         $pdf = Pdf::loadView('reservaciones.boleto_pdf', compact('reservacion'));
         
-        // Define un nombre de archivo para el PDF
+        // Define un tamaño de papel personalizado para que coincida con el boleto.
+        $pdf->setPaper([0, 0, 600, 310]);
+        
         $fileName = 'boleto-skywings-' . $reservacion->id . '.pdf';
-
-        // Muestra el PDF en el navegador en lugar de descargarlo directamente
         return $pdf->stream($fileName);
     }
 
@@ -87,9 +80,21 @@ class ReservacionController extends Controller
             'vuelo_id' => 'required|exists:vuelos,id',
             'asientos_seleccionados' => 'required|string|min:1',
             'metodo_pago' => 'required|in:tarjeta,paypal',
-            'paypal_email' => 'required_if:metodo_pago,paypal|email',
+            
+            // ===================================================================
+            // ===== INICIO DE LA LÍNEA MODIFICADA ===============================
+            // ===================================================================
+
+            // Se agrega 'nullable' para permitir que el campo esté vacío o no exista
+            // si el método de pago no es 'paypal'.
+            'paypal_email' => 'nullable|required_if:metodo_pago,paypal|email',
+
+            // ===================================================================
+            // ===== FIN DE LA LÍNEA MODIFICADA ==================================
+            // ===================================================================
         ], [
             'asientos_seleccionados.required' => 'Debes seleccionar al menos un asiento.',
+            'paypal_email.required_if' => 'El correo de PayPal es obligatorio cuando se elige ese método de pago.',
         ]);
 
         $vuelo = Vuelo::findOrFail($request->vuelo_id);
@@ -99,6 +104,7 @@ class ReservacionController extends Controller
         try {
             DB::beginTransaction();
 
+            // Bloquea la tabla para evitar que dos personas reserven el mismo asiento a la vez
             $asientosYaOcupados = Reservacion::where('vuelo_id', $vuelo->id)
                 ->lockForUpdate()
                 ->pluck('numeros_asiento')->flatten()->all();
@@ -106,6 +112,7 @@ class ReservacionController extends Controller
             $conflicto = array_intersect($asientosSeleccionados, $asientosYaOcupados);
 
             if (!empty($conflicto)) {
+                DB::rollBack();
                 return back()->withErrors(['asientos_seleccionados' => 'Lo sentimos, el asiento ' . $conflicto[0] . ' acaba de ser ocupado. Por favor, elige otro.'])->withInput();
             }
 
@@ -127,6 +134,7 @@ class ReservacionController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
+            // Para depuración, puedes registrar el error: \Log::error($e->getMessage());
             return back()->withErrors(['error' => 'Ocurrió un error inesperado al procesar tu reservación.'])->withInput();
         }
 

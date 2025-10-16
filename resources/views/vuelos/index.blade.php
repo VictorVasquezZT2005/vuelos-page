@@ -2,7 +2,7 @@
 
 @section('styles')
 <style>
-/* ... Pega aquí todo el código CSS de arriba ... */
+/* ... Pega aquí todo el código CSS ... */
 </style>
 @endsection
 
@@ -36,9 +36,32 @@
                             <strong>Asientos ocupados:</strong> {{ $vuelo->asientos_ocupados }}
                         </p>
 
-                        <a href="{{ route('reservaciones.create', ['vuelo_id' => $vuelo->id]) }}" class="btn btn-primary w-100 mt-auto">
-                            Reservar
-                        </a>
+                        {{-- =============================================================== --}}
+                        {{-- ========= INICIO DEL CÓDIGO MODIFICADO PARA EL BOTÓN ========= --}}
+                        {{-- =============================================================== --}}
+
+                        @php
+                            // Se establece la zona horaria de El Salvador
+                            $nowInElSalvador = \Carbon\Carbon::now('America/El_Salvador');
+                            $fechaSalida = \Carbon\Carbon::parse($vuelo->fecha_salida);
+                        @endphp
+
+                        @if($fechaSalida->isFuture() && $vuelo->asientos_disponibles > 0)
+                            {{-- Si el vuelo es en el futuro y hay asientos, el botón está activo --}}
+                            <a href="{{ route('reservaciones.create', ['vuelo_id' => $vuelo->id]) }}" class="btn btn-primary w-100 mt-auto">
+                                Reservar
+                            </a>
+                        @else
+                            {{-- Si el vuelo ya pasó o no hay asientos, el botón está desactivado --}}
+                            <button class="btn btn-secondary w-100 mt-auto" disabled>
+                                Vuelo no disponible
+                            </button>
+                        @endif
+
+                        {{-- =============================================================== --}}
+                        {{-- =========== FIN DEL CÓDIGO MODIFICADO PARA EL BOTÓN =========== --}}
+                        {{-- =============================================================== --}}
+
                     </div>
                 </div>
             </div>
