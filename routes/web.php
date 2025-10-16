@@ -29,4 +29,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/reservaciones', [ReservacionController::class, 'index'])->name('reservaciones.index');
     Route::get('/reservaciones/create/{vuelo_id}', [ReservacionController::class, 'create'])->name('reservaciones.create');
     Route::post('/reservaciones', [ReservacionController::class, 'store'])->name('reservaciones.store');
+    
+    // --- RUTAS AÑADIDAS ---
+    // Esta ruta usa el método GET y espera el ID de la reservación. Es para el modal de información.
+    Route::get('/reservaciones/{reservacion}', [ReservacionController::class, 'show'])->name('reservaciones.show');
+    
+    // Esta ruta genera el boleto en PDF para una reservación específica.
+    Route::get('/reservaciones/{reservacion}/boleto', [ReservacionController::class, 'generarBoletoPDF'])->name('reservaciones.boleto');
 });

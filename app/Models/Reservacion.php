@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Reservacion extends Model
 {
@@ -11,36 +11,44 @@ class Reservacion extends Model
 
     protected $table = 'reservaciones';
 
-    // Solo los campos que realmente se guardan en la DB
+    /**
+     * Los atributos que se pueden asignar masivamente.
+     *
+     * @var array
+     */
     protected $fillable = [
         'cliente_id',
         'vuelo_id',
-        'asientos',
+        'numeros_asiento', // <-- AÑADIDO: Para guardar los asientos específicos
+        'asientos',        // Mantenemos la cantidad total por conveniencia
         'fecha_reserva',
         'metodo_pago',
         'paypal_email',
     ];
 
-    protected $dates = [
-        'fecha_reserva',
+    /**
+     * Los atributos que deben ser convertidos a tipos nativos.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'numeros_asiento' => 'array', // <-- AÑADIDO: Laravel convierte JSON <-> Array automáticamente
+        'fecha_reserva' => 'datetime',
     ];
 
+    /**
+     * Relación con el modelo Cliente.
+     */
     public function cliente()
     {
         return $this->belongsTo(Cliente::class);
     }
 
+    /**
+     * Relación con el modelo Vuelo.
+     */
     public function vuelo()
     {
         return $this->belongsTo(Vuelo::class);
-    }
-
-    protected static function booted()
-    {
-        static::creating(function ($reservacion) {
-            if (!$reservacion->fecha_reserva) {
-                $reservacion->fecha_reserva = now();
-            }
-        });
     }
 }

@@ -111,7 +111,7 @@
     <div>
         <h1 class="display-3">Vuela Con Confianza</h1>
         <p class="lead">Descubre nuevos destinos y vive experiencias inolvidables con nosotros.</p>
-        <a href="#destinos" class="btn btn-primary btn-lg mt-3 fw-bold">Ver Destinos</a>
+        <a href="/vuelos" class="btn btn-primary btn-lg mt-3 fw-bold">Ver Destinos</a>
     </div>
 </header>
 
