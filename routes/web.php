@@ -17,10 +17,19 @@ Route::get('/login', [ClienteAuthController::class,'showLoginForm'])->name('logi
 Route::post('/login', [ClienteAuthController::class,'login'])->name('login.post');
 Route::post('/logout', [ClienteAuthController::class,'logout'])->name('logout');
 
-// Contacto
-Route::post('/contacto/send', [ContactoController::class, 'send'])->name('contacto.send');
+/*
+|--------------------------------------------------------------------------
+| Ruta del Formulario de Contacto
+|--------------------------------------------------------------------------
+|
+| Esta ruta recibe los datos del formulario de la página principal
+| por el método POST y los envía al método 'send' del ContactoController.
+|
+*/
+Route::post('/contacto', [ContactoController::class, 'send'])->name('contacto.send');
 
-// Rutas protegidas por auth
+
+// Rutas protegidas que requieren que el cliente haya iniciado sesión
 Route::middleware('auth')->group(function () {
     // Vuelos
     Route::get('/vuelos', [VueloController::class, 'index'])->name('vuelos.index');
@@ -31,9 +40,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/reservaciones', [ReservacionController::class, 'store'])->name('reservaciones.store');
     
     // --- RUTAS AÑADIDAS ---
-    // Esta ruta usa el método GET y espera el ID de la reservación. Es para el modal de información.
+    // Muestra la información de una reservación (para el modal)
     Route::get('/reservaciones/{reservacion}', [ReservacionController::class, 'show'])->name('reservaciones.show');
     
-    // Esta ruta genera el boleto en PDF para una reservación específica.
+    // Genera el boleto en PDF para una reservación específica.
     Route::get('/reservaciones/{reservacion}/boleto', [ReservacionController::class, 'generarBoletoPDF'])->name('reservaciones.boleto');
 });
